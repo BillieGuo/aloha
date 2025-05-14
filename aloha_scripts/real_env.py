@@ -129,6 +129,10 @@ class RealEnv:
         state_len = int(len(action) / 2)
         left_action = action[:state_len]
         right_action = action[state_len:]
+
+        # hardcode the state diff
+        right_action = (right_action[0], -right_action[1], -right_action[2], right_action[3], right_action[4], right_action[5], right_action[6])
+
         self.puppet_bot_left.arm.set_joint_positions(left_action[:6], blocking=False)
         self.puppet_bot_right.arm.set_joint_positions(right_action[:6], blocking=False)
         self.set_gripper_pose(left_action[-1], right_action[-1])
@@ -169,7 +173,7 @@ def test_real_teleop():
     """
 
     onscreen_render = True
-    render_cam = 'cam_left_wrist'
+    render_cam = 'cam_right_wrist'
 
     # source of data
     master_bot_left = InterbotixManipulatorXS(robot_model="wx250s", group_name="arm", gripper_name="gripper",
