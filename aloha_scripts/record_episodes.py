@@ -7,7 +7,8 @@ from tqdm import tqdm
 
 from constants import DT, START_ARM_POSE, TASK_CONFIGS
 from constants import MASTER_GRIPPER_JOINT_MID, PUPPET_GRIPPER_JOINT_CLOSE, PUPPET_GRIPPER_JOINT_OPEN
-from robot_utils import Recorder, ImageRecorder, get_arm_gripper_positions
+# from robot_utils import Recorder, ImageRecorder, get_arm_gripper_positions
+from test_rs_cb import Recorder, ImageRecorder, get_arm_gripper_positions
 from robot_utils import move_arms, torque_on, torque_off, move_grippers
 from real_env import make_real_env, get_action
 
@@ -40,8 +41,13 @@ def opening_ceremony(master_bot_left, master_bot_right, puppet_bot_left, puppet_
     torque_on(master_bot_right)
 
     # move arms to starting position
-    start_arm_qpos = START_ARM_POSE[:6]
-    move_arms([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], [start_arm_qpos] * 4, move_time=1.5)
+    start_arm_qpos = START_ARM_POSE[:6] # ???
+    start_arm_qpos = (start_arm_qpos[0], -start_arm_qpos[1], -start_arm_qpos[2], start_arm_qpos[3], start_arm_qpos[4], start_arm_qpos[5])
+    start_arm_qpos_puppet = START_ARM_POSE[:6]
+    start_arm_qpos_puppet = (start_arm_qpos_puppet[0], -start_arm_qpos_puppet[1], -start_arm_qpos_puppet[2], start_arm_qpos_puppet[3], start_arm_qpos_puppet[4], start_arm_qpos_puppet[5])
+
+    move_arms([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], 
+              [start_arm_qpos, start_arm_qpos, start_arm_qpos_puppet, start_arm_qpos_puppet], move_time=1.5)
     # move grippers to starting position
     move_grippers([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], [MASTER_GRIPPER_JOINT_MID, PUPPET_GRIPPER_JOINT_CLOSE] * 2, move_time=0.5)
 
@@ -68,7 +74,7 @@ def capture_one_episode(dt, max_timesteps, camera_names, dataset_dir, dataset_na
     print(f'Dataset name: {dataset_name}')
 
     # source of data
-    master_bot_left = InterbotixManipulatorXS(robot_model="wx250s", group_name="arm", gripper_name="gripper",
+    master_bot_left = InterbotixManipulatorXS(robot_model="vx300s", group_name="arm", gripper_name="gripper",
                                               robot_name=f'master_left', init_node=True)
     master_bot_right = InterbotixManipulatorXS(robot_model="wx250s", group_name="arm", gripper_name="gripper",
                                                robot_name=f'master_right', init_node=False)
