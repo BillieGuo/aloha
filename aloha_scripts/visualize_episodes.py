@@ -17,6 +17,7 @@ def load_hdf5(dataset_dir, dataset_name):
     dataset_path = os.path.join(dataset_dir, dataset_name + '.hdf5')
     if not os.path.isfile(dataset_path):
         print(f'Dataset does not exist at \n{dataset_path}\n')
+        print(f'current pwd: {os.getcwd()}')
         exit()
 
     with h5py.File(dataset_path, 'r') as root:
@@ -27,12 +28,13 @@ def load_hdf5(dataset_dir, dataset_name):
         action = root['/action'][()]
         image_dict = dict()
         for cam_name in root[f'/observations/images/'].keys():
+            print(f'Loading {cam_name} images')
             image_dict[cam_name] = root[f'/observations/images/{cam_name}'][()]
 
     return qpos, qvel, effort, action, image_dict
 
 def main(args):
-    dataset_dir = args['dataset_dir']
+    dataset_dir = os.path.join(os.getcwd(), '..', 'dataset', args['dataset_dir'])
     episode_idx = args['episode_idx']
     dataset_name = f'episode_{episode_idx}'
 

@@ -15,6 +15,7 @@ class ImageRecorder:
         self.is_debug = is_debug
         self.bridge = CvBridge()
         self.camera_names = ['cam_high', 'cam_low', 'cam_left_wrist', 'cam_right_wrist']
+        # self.camera_names = ['cam_right_wrist']
         if init_node:
             rospy.init_node('image_recorder', anonymous=True)
         for cam_name in self.camera_names:
@@ -31,16 +32,20 @@ class ImageRecorder:
                 callback_func = self.image_cb_cam_right_wrist
             else:
                 raise NotImplementedError
-            rospy.Subscriber(f"/usb_{cam_name}/image_raw", Image, callback_func)
+            # rospy.Subscriber(f"/usb_{cam_name}/image_raw", Image, callback_func)
+            rospy.Subscriber(f"/{cam_name}/color/image_raw", Image, callback_func)
             if self.is_debug:
                 setattr(self, f'{cam_name}_timestamps', deque(maxlen=50))
         time.sleep(0.5)
 
     def image_cb(self, cam_name, data):
-        setattr(self, f'{cam_name}_image', self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough'))
+        bgr_image = self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
+        rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+        setattr(self, f'{cam_name}_image', rgb_image)
         setattr(self, f'{cam_name}_secs', data.header.stamp.secs)
         setattr(self, f'{cam_name}_nsecs', data.header.stamp.nsecs)
-        # cv2.imwrite('/home/tonyzhao/Desktop/sample.jpg', cv_image)
+        # cv_image = getattr(self, f'{cam_name}_image')
+        # cv2.imwrite('/home/ros1/Desktop/test/sample.jpg', cv_image)
         if self.is_debug:
             getattr(self, f'{cam_name}_timestamps').append(data.header.stamp.secs + data.header.stamp.secs * 1e-9)
 
