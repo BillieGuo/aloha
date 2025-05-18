@@ -1,7 +1,7 @@
 <launch>
 
-  <arg name="robot_model_master"                default="wx250s"/>
-  <arg name="robot_model_puppet"                default="vx300s"/>
+  <!-- <arg name="robot_model_master"                default="wx250s"/> -->
+  <!-- <arg name="robot_model_puppet"                default="vx300s"/> -->
 
   <arg name="base_link_master"                  default="base_link"/>
   <arg name="base_link_puppet"                  default="base_link"/>
@@ -21,7 +21,7 @@
 
 
   <include if="$(arg launch_driver)" file="$(find interbotix_xsarm_control)/launch/xsarm_control.launch">
-    <arg name="robot_model"                       value="$(arg robot_model_master)"/>
+    <arg name="robot_model"                       value="vx300s"/>
     <arg name="robot_name"                        value="$(arg robot_name_master_left)"/>
     <arg name="base_link_frame"                   value="$(arg base_link_master)"/>
     <arg name="use_world_frame"                   value="false"/>
@@ -31,7 +31,7 @@
   </include>
 
   <include if="$(arg launch_driver)" file="$(find interbotix_xsarm_control)/launch/xsarm_control.launch">
-    <arg name="robot_model"                       value="$(arg robot_model_master)"/>
+    <arg name="robot_model"                       value="wx250s"/>
     <arg name="robot_name"                        value="$(arg robot_name_master_right)"/>
     <arg name="base_link_frame"                   value="$(arg base_link_master)"/>
     <arg name="use_world_frame"                   value="false"/>
@@ -42,7 +42,7 @@
 
 
   <include if="$(arg launch_driver)" file="$(find interbotix_xsarm_control)/launch/xsarm_control.launch">
-    <arg name="robot_model"                       value="$(arg robot_model_puppet)"/>
+    <arg name="robot_model"                       value="wx250s"/>
     <arg name="robot_name"                        value="$(arg robot_name_puppet_left)"/>
     <arg name="base_link_frame"                   value="$(arg base_link_puppet)"/>
     <arg name="use_world_frame"                   value="false"/>
@@ -52,7 +52,7 @@
   </include>
 
   <include if="$(arg launch_driver)" file="$(find interbotix_xsarm_control)/launch/xsarm_control.launch">
-    <arg name="robot_model"                       value="$(arg robot_model_puppet)"/>
+    <arg name="robot_model"                       value="wx250s"/>
     <arg name="robot_name"                        value="$(arg robot_name_puppet_right)"/>
     <arg name="base_link_frame"                   value="$(arg base_link_puppet)"/>
     <arg name="use_world_frame"                   value="false"/>
