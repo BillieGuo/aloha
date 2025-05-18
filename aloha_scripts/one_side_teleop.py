@@ -21,11 +21,8 @@ def prep_robots(master_bot, puppet_bot):
 
     # move arms to starting position
     start_arm_qpos = START_ARM_POSE[:6]
-    if master_bot.dxl.robot_name == 'master_left':
-        start_arm_qpos = (start_arm_qpos[0], -start_arm_qpos[1], -start_arm_qpos[2], start_arm_qpos[3], start_arm_qpos[4], start_arm_qpos[5])
     start_arm_qpos_puppet = START_ARM_POSE[:6]
-    start_arm_qpos_puppet = (start_arm_qpos_puppet[0], -start_arm_qpos_puppet[1], -start_arm_qpos_puppet[2], start_arm_qpos_puppet[3], start_arm_qpos_puppet[4], start_arm_qpos_puppet[5])
-    move_arms([master_bot, puppet_bot], [start_arm_qpos, start_arm_qpos_puppet], move_time=1)
+    move_arms([master_bot, puppet_bot], [start_arm_qpos, start_arm_qpos_puppet], move_time=3)
     # move grippers to starting position
     move_grippers([master_bot, puppet_bot], [MASTER_GRIPPER_JOINT_MID, PUPPET_GRIPPER_JOINT_CLOSE], move_time=0.5)
 
@@ -62,20 +59,17 @@ def teleop(robot_side):
     gripper_command = JointSingleCommand(name="gripper")
     while True:
         # sync joint positions
-        master_state_joints = master_bot.dxl.joint_states.position[:6]
-
-        print(f'master_state_joints: {master_state_joints}')
-        if robot_side == 'right':
-            master_state_joints = (master_state_joints[0], -master_state_joints[1], 
-                                        -master_state_joints[2], master_state_joints[3],
-                                        master_state_joints[4], master_state_joints[5])
-        print(f'master_state_joints: {master_state_joints}')
-
-            
+        master_state_joints = master_bot.dxl.joint_states.position[:6]          
         puppet_bot.arm.set_joint_positions(master_state_joints, blocking=False)
         # sync gripper positions
         master_gripper_joint = master_bot.dxl.joint_states.position[6]
-        puppet_gripper_joint_target = MASTER2PUPPET_JOINT_FN(master_gripper_joint)
+        if robot_side == 'right':
+            # wx250s to wx250s
+            puppet_gripper_joint_target = master_gripper_joint
+        else:
+            # vx300s to wx250s, master gripper broken, do not use
+            # puppet_gripper_joint_target = MASTER2PUPPET_JOINT_FN(master_gripper_joint)
+            puppet_gripper_joint_target = PUPPET_GRIPPER_JOINT_CLOSE
         gripper_command.cmd = puppet_gripper_joint_target
         puppet_bot.gripper.core.pub_single.publish(gripper_command)
         # sleep DT

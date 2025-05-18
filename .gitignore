@@ -4,3 +4,7 @@
 /aloha_scripts/.idea/
 
 **/__pycache__/
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.mp4
