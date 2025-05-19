@@ -40,17 +40,20 @@ def opening_ceremony(master_bot_left, master_bot_right, puppet_bot_left, puppet_
     torque_on(master_bot_right)
 
     # move arms to starting position
-    start_arm_qpos = START_ARM_POSE[:6] # ???
-    start_arm_qpos_left_master = (start_arm_qpos[0], -start_arm_qpos[1], -start_arm_qpos[2], start_arm_qpos[3], start_arm_qpos[4], start_arm_qpos[5])
-    start_arm_qpos_right_master = (start_arm_qpos[0], start_arm_qpos[1], start_arm_qpos[2], start_arm_qpos[3], start_arm_qpos[4], start_arm_qpos[5])
+    start_arm_qpos = START_ARM_POSE[:6]
     start_arm_qpos_puppet = START_ARM_POSE[:6]
-    start_arm_qpos_puppet = (start_arm_qpos_puppet[0], -start_arm_qpos_puppet[1], -start_arm_qpos_puppet[2], start_arm_qpos_puppet[3], start_arm_qpos_puppet[4], start_arm_qpos_puppet[5])
 
-    move_arms([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], 
-              [start_arm_qpos_left_master, start_arm_qpos_puppet, start_arm_qpos_right_master, start_arm_qpos_puppet], 
-              move_time=1.5)
+    # move_arms([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], 
+    #           [start_arm_qpos, start_arm_qpos_puppet, start_arm_qpos, start_arm_qpos_puppet], 
+    #           move_time=3)
+
+    # Right Only
+    move_arms([master_bot_right, puppet_bot_right],
+              [start_arm_qpos, start_arm_qpos_puppet],
+              move_time=3)
     # move grippers to starting position
-    move_grippers([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], [MASTER_GRIPPER_JOINT_MID, PUPPET_GRIPPER_JOINT_CLOSE] * 2, move_time=0.5)
+    # move_grippers([master_bot_left, puppet_bot_left, master_bot_right, puppet_bot_right], [MASTER_GRIPPER_JOINT_MID, PUPPET_GRIPPER_JOINT_CLOSE] * 2, move_time=0.5)
+    move_grippers([master_bot_right, puppet_bot_right], [MASTER_GRIPPER_JOINT_MID, PUPPET_GRIPPER_JOINT_CLOSE], move_time=0.5)
 
 
     # press gripper to start data collection
@@ -61,9 +64,10 @@ def opening_ceremony(master_bot_left, master_bot_right, puppet_bot_left, puppet_
     close_thresh = -0.3
     pressed = False
     while not pressed:
-        gripper_pos_left = get_arm_gripper_positions(master_bot_left)
+        # gripper_pos_left = get_arm_gripper_positions(master_bot_left)
         gripper_pos_right = get_arm_gripper_positions(master_bot_right)
-        if (gripper_pos_left < close_thresh) and (gripper_pos_right < close_thresh):
+        # if (gripper_pos_left < close_thresh) and (gripper_pos_right < close_thresh):
+        if (gripper_pos_right < close_thresh):
             pressed = True
         time.sleep(DT/10)
     torque_off(master_bot_left)
@@ -88,6 +92,7 @@ def capture_one_episode(dt, max_timesteps, camera_names, dataset_dir, dataset_na
     if os.path.isfile(dataset_path) and not overwrite:
         print(f'Dataset already exist at \n{dataset_path}\nHint: set overwrite to True.')
         exit()
+    print(f'Dataset path: {dataset_path}')
 
     # move all 4 robots to a starting pose where it is easy to start teleoperation, then wait till both gripper closed
     opening_ceremony(master_bot_left, master_bot_right, env.puppet_bot_left, env.puppet_bot_right)
@@ -100,6 +105,8 @@ def capture_one_episode(dt, max_timesteps, camera_names, dataset_dir, dataset_na
     for t in tqdm(range(max_timesteps)):
         t0 = time.time() #
         action = get_action(master_bot_left, master_bot_right)
+        # Right only
+        action[0:7] = 0
         t1 = time.time() #
         ts = env.step(action)
         t2 = time.time() #

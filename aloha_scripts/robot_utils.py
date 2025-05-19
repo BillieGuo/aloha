@@ -2,7 +2,9 @@ import numpy as np
 import time
 from constants import DT
 from interbotix_xs_msgs.msg import JointSingleCommand
-
+import cv2
+import rospy
+from cv_bridge import CvBridge
 import IPython
 e = IPython.embed
 
@@ -15,7 +17,6 @@ class ImageRecorder:
         self.is_debug = is_debug
         self.bridge = CvBridge()
         self.camera_names = ['cam_high', 'cam_low', 'cam_left_wrist', 'cam_right_wrist']
-        # self.camera_names = ['cam_right_wrist']
         if init_node:
             rospy.init_node('image_recorder', anonymous=True)
         for cam_name in self.camera_names:
@@ -32,7 +33,6 @@ class ImageRecorder:
                 callback_func = self.image_cb_cam_right_wrist
             else:
                 raise NotImplementedError
-            # rospy.Subscriber(f"/usb_{cam_name}/image_raw", Image, callback_func)
             rospy.Subscriber(f"/{cam_name}/color/image_raw", Image, callback_func)
             if self.is_debug:
                 setattr(self, f'{cam_name}_timestamps', deque(maxlen=50))
@@ -44,7 +44,9 @@ class ImageRecorder:
         setattr(self, f'{cam_name}_image', rgb_image)
         setattr(self, f'{cam_name}_secs', data.header.stamp.secs)
         setattr(self, f'{cam_name}_nsecs', data.header.stamp.nsecs)
-        # cv_image = getattr(self, f'{cam_name}_image')
+        cv_image = getattr(self, f'{cam_name}_image')
+        cv2.imshow('image', cv_image)
+        cv2.waitKey(1)
         # cv2.imwrite('/home/ros1/Desktop/test/sample.jpg', cv_image)
         if self.is_debug:
             getattr(self, f'{cam_name}_timestamps').append(data.header.stamp.secs + data.header.stamp.secs * 1e-9)
