@@ -13,7 +13,8 @@ def main():
 
     puppet_sleep_position = (0, -1.9, 1.55, 0.12, 0.65, 0)
     master_sleep_position = (0, -1.1, 1.24, 0, -0.24, 0)
-    move_arms(all_bots, [puppet_sleep_position] * 4, move_time=4)
+    sleep_position = [0, -1.88, 1.55, 0, 0.8, 0]
+    move_arms(all_bots, [sleep_position] * 4, move_time=4)
 
 if __name__ == '__main__':
     main()
