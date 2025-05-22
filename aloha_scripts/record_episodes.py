@@ -61,7 +61,7 @@ def opening_ceremony(master_bot_left, master_bot_right, puppet_bot_left, puppet_
     master_bot_left.dxl.robot_torque_enable("single", "gripper", False)
     master_bot_right.dxl.robot_torque_enable("single", "gripper", False)
     print(f'Close the gripper to start')
-    close_thresh = -0.3
+    close_thresh = 0.0 # The joint position which is comfortable to close.
     pressed = False
     while not pressed:
         # gripper_pos_left = get_arm_gripper_positions(master_bot_left)
@@ -151,9 +151,21 @@ def capture_one_episode(dt, max_timesteps, camera_names, dataset_dir, dataset_na
     while actions:
         action = actions.pop(0)
         ts = timesteps.pop(0)
-        data_dict['/observations/qpos'].append(ts.observation['qpos'])
-        data_dict['/observations/qvel'].append(ts.observation['qvel'])
-        data_dict['/observations/effort'].append(ts.observation['effort'])
+        # Zero out first half of action and observations
+        action = np.array(action)
+        action[0:7] = 0
+        qpos = np.array(ts.observation['qpos'])
+        qvel = np.array(ts.observation['qvel'])
+        effort = np.array(ts.observation['effort'])
+        qpos[0:7] = 0
+        qvel[0:7] = 0
+        effort[0:7] = 0
+        # data_dict['/observations/qpos'].append(ts.observation['qpos'])
+        # data_dict['/observations/qvel'].append(ts.observation['qvel'])
+        # data_dict['/observations/effort'].append(ts.observation['effort'])
+        data_dict['/observations/qpos'].append(qpos)
+        data_dict['/observations/qvel'].append(qvel)
+        data_dict['/observations/effort'].append(effort)
         data_dict['/action'].append(action)
         for cam_name in camera_names:
             data_dict[f'/observations/images/{cam_name}'].append(ts.observation['images'][cam_name])

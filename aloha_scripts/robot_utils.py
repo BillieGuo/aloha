@@ -93,7 +93,9 @@ class Recorder:
         self.secs = None
         self.nsecs = None
         self.qpos = None
-        self.effort = None
+        self.qvel = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.effort = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        # self.effort = None
         self.arm_command = None
         self.gripper_command = None
         self.is_debug = is_debug
@@ -111,8 +113,10 @@ class Recorder:
 
     def puppet_state_cb(self, data):
         self.qpos = data.position
-        self.qvel = data.velocity
-        self.effort = data.effort
+        if len(data.velocity) > 0:
+            self.qvel = data.velocity
+        if len(data.effort) > 0:
+            self.effort = data.effort
         self.data = data
         if self.is_debug:
             self.joint_timestamps.append(time.time())
