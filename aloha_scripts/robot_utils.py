@@ -16,21 +16,23 @@ class ImageRecorder:
         from sensor_msgs.msg import Image
         self.is_debug = is_debug
         self.bridge = CvBridge()
-        self.camera_names = ['cam_high', 'cam_low', 'cam_left_wrist', 'cam_right_wrist']
+        # self.camera_names = ['cam_top_right', 'cam_low', 'cam_left_wrist', 'cam_right_wrist']
+        # self.camera_names = ['cam_top_right', 'cam_wrist_right']
+        self.camera_names = ['cam_top_right']
         if init_node:
             rospy.init_node('image_recorder', anonymous=True)
         for cam_name in self.camera_names:
             setattr(self, f'{cam_name}_image', None)
             setattr(self, f'{cam_name}_secs', None)
             setattr(self, f'{cam_name}_nsecs', None)
-            if cam_name == 'cam_high':
-                callback_func = self.image_cb_cam_high
+            if cam_name == 'cam_top_right':
+                callback_func = self.image_cb_cam_top_right
             elif cam_name == 'cam_low':
                 callback_func = self.image_cb_cam_low
             elif cam_name == 'cam_left_wrist':
                 callback_func = self.image_cb_cam_left_wrist
-            elif cam_name == 'cam_right_wrist':
-                callback_func = self.image_cb_cam_right_wrist
+            elif cam_name == 'cam_wrist_right':
+                callback_func = self.image_cb_cam_wrist_right
             else:
                 raise NotImplementedError
             rospy.Subscriber(f"/{cam_name}/color/image_raw", Image, callback_func)
@@ -41,18 +43,19 @@ class ImageRecorder:
     def image_cb(self, cam_name, data):
         bgr_image = self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
         rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+        # rgb_image = self.bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
         setattr(self, f'{cam_name}_image', rgb_image)
         setattr(self, f'{cam_name}_secs', data.header.stamp.secs)
         setattr(self, f'{cam_name}_nsecs', data.header.stamp.nsecs)
         cv_image = getattr(self, f'{cam_name}_image')
-        cv2.imshow('image', cv_image)
+        cv2.imshow(f'{cam_name}', cv_image)
         cv2.waitKey(1)
-        # cv2.imwrite('/home/ros1/Desktop/test/sample.jpg', cv_image)
+        # cv2.imwrite(f'/home/ros1/Desktop/test/{cam_name}.jpg', cv_image)
         if self.is_debug:
             getattr(self, f'{cam_name}_timestamps').append(data.header.stamp.secs + data.header.stamp.secs * 1e-9)
 
-    def image_cb_cam_high(self, data):
-        cam_name = 'cam_high'
+    def image_cb_cam_top_right(self, data):
+        cam_name = 'cam_top_right'
         return self.image_cb(cam_name, data)
 
     def image_cb_cam_low(self, data):
@@ -63,8 +66,8 @@ class ImageRecorder:
         cam_name = 'cam_left_wrist'
         return self.image_cb(cam_name, data)
 
-    def image_cb_cam_right_wrist(self, data):
-        cam_name = 'cam_right_wrist'
+    def image_cb_cam_wrist_right(self, data):
+        cam_name = 'cam_wrist_right'
         return self.image_cb(cam_name, data)
 
     def get_images(self):

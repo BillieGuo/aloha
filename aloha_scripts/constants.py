@@ -12,8 +12,27 @@ TASK_CONFIGS = {
         'dataset_dir': DATA_DIR + '/test',
         'num_episodes': 50,
         'episode_len': 1000,
-        'camera_names': ['cam_right_wrist']
+        'camera_names': ['cam_top_right', 'cam_wrist_right']
     },
+    'clean':{
+        'dataset_dir': DATA_DIR + '/clean',
+        'num_episodes': 50,
+        'episode_len': 1000,
+        'camera_names': ['cam_top_right', 'cam_wrist_right']
+
+    },
+    'pure_clean': {
+        'dataset_dir': DATA_DIR + '/pure_clean',
+        'num_episodes': 50,
+        'episode_len': 1200,
+        'camera_names': ['cam_top_right', 'cam_wrist_right']
+    },
+    'pure_clean_ms': {
+        'dataset_dir': DATA_DIR + '/pure_clean_ms',
+        'num_episodes': 50,
+        'episode_len': 1200,
+        'camera_names': ['cam_top_right', 'cam_wrist_right']
+    }
 }
 
 ### ALOHA fixed constants
